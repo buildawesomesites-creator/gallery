@@ -9,6 +9,8 @@
         .item { background: white; padding: 10px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); text-align: center; }
         img { width: 100%; height: 150px; object-fit: cover; border-radius: 4px; }
         .details { margin-top: 10px; font-size: 0.85em; }
+        a { color: #007bff; word-break: break-all; text-decoration: none; }
+        a:hover { text-decoration: underline; }
     </style>
 </head>
 <body>
@@ -20,7 +22,7 @@
     <script>
         const username = 'buildawesomesites-creator';
         const repo = 'gallery';
-        const folderPath = 'images'; // Changed from 'Image' to 'images'
+        const folderPath = 'Images'; // Updated to match your exact folder name
 
         async function fetchRepoImages() {
             const status = document.getElementById('status');
@@ -35,6 +37,7 @@
                 const gallery = document.getElementById('gallery');
 
                 files.forEach(file => {
+                    // Check for image extensions
                     if (file.type === 'file' && file.name.match(/\.(jpeg|jpg|png|gif|webp)$/i)) {
                         const item = document.createElement('div');
                         item.className = 'item';
@@ -49,7 +52,7 @@
                     }
                 });
             } catch (error) {
-                status.innerHTML = 'Error: ' + error.message + '<br>Check if folder name is exactly "images"';
+                status.innerHTML = 'Error: ' + error.message + '<br>Please ensure the folder name "Images" is correct and at the repository root.';
             }
         }
 
