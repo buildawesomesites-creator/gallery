@@ -5,15 +5,18 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Image Gallery</title>
     <style>
-        body { 
-            font-family: sans-serif; 
-            margin: 0; 
-            padding: 15px; 
-            background: #f4f4f4; 
-        }
+        body { font-family: sans-serif; margin: 0; padding: 15px; background: #f4f4f4; }
         h1 { text-align: center; font-size: 1.5rem; }
         
-        /* Mobile-First Responsive Grid */
+        /* Control Panel */
+        .controls { text-align: center; margin-bottom: 20px; }
+        button { 
+            padding: 10px 20px; background: #28a745; color: white; border: none; 
+            border-radius: 5px; cursor: pointer; font-weight: bold;
+        }
+        button:hover { background: #218838; }
+
+        /* Gallery Grid */
         .gallery-container { 
             display: grid; 
             grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); 
@@ -22,48 +25,28 @@
             margin: 0 auto;
         }
         
-        .item { 
-            background: white; 
-            padding: 8px; 
-            border-radius: 8px; 
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1); 
-            text-align: center; 
-        }
-        
-        img { 
-            width: 100%; 
-            aspect-ratio: 1 / 1; 
-            object-fit: cover; 
-            border-radius: 4px; 
-            display: block;
-        }
-        
-        .details { 
-            margin-top: 8px; 
-            font-size: 0.75rem; 
-            overflow: hidden;
-        }
-        
-        a { 
-            display: block;
-            margin-top: 5px;
-            color: #007bff; 
-            word-break: break-all; 
-            text-decoration: none; 
-            font-weight: bold;
-        }
+        .item { background: white; padding: 8px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); text-align: center; }
+        img { width: 100%; aspect-ratio: 1 / 1; object-fit: cover; border-radius: 4px; display: block; }
+        .details { margin-top: 8px; font-size: 0.75rem; overflow: hidden; }
+        a { display: block; margin-top: 5px; color: #007bff; word-break: break-all; text-decoration: none; font-weight: bold; }
     </style>
 </head>
 <body>
 
     <h1>Image Repository</h1>
+    
+    <div class="controls">
+        <button id="downloadBtn">Download CSV</button>
+    </div>
+
     <div id="status" style="text-align: center;">Loading...</div>
     <div id="gallery" class="gallery-container"></div>
 
     <script>
         const username = 'buildawesomesites-creator';
         const repo = 'gallery';
-        const folderPath = 'Images'; 
+        const folderPath = 'Images';
+        let imageData = []; // Store data for CSV
 
         async function fetchRepoImages() {
             const status = document.getElementById('status');
@@ -79,12 +62,16 @@
 
                 files.forEach(file => {
                     if (file.type === 'file' && file.name.match(/\.(jpeg|jpg|png|gif|webp)$/i)) {
+                        // Clean name (remove extension)
+                        const cleanName = file.name.replace(/\.[^/.]+$/, "");
+                        imageData.push({ name: cleanName, url: file.download_url });
+
                         const item = document.createElement('div');
                         item.className = 'item';
                         item.innerHTML = `
-                            <img src="${file.download_url}" alt="${file.name}" loading="lazy">
+                            <img src="${file.download_url}" alt="${cleanName}" loading="lazy">
                             <div class="details">
-                                <p style="margin:0;">${file.name}</p>
+                                <p style="margin:0;"><strong>${cleanName}</strong></p>
                                 <a href="${file.download_url}" target="_blank">View Hotlink</a>
                             </div>
                         `;
@@ -95,6 +82,24 @@
                 status.innerHTML = 'Error: ' + error.message;
             }
         }
+
+        // CSV Download Logic
+        document.getElementById('downloadBtn').addEventListener('click', () => {
+            if (imageData.length === 0) return;
+            
+            let csvContent = "data:text/csv;charset=utf-8,Name,Hotlink\n";
+            imageData.forEach(item => {
+                csvContent += `"${item.name}","${item.url}"\n`;
+            });
+
+            const encodedUri = encodeURI(csvContent);
+            const link = document.createElement("a");
+            link.setAttribute("href", encodedUri);
+            link.setAttribute("download", "images_data.csv");
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        });
 
         fetchRepoImages();
     </script>
