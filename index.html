@@ -9,25 +9,29 @@
         .item { background: white; padding: 10px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); text-align: center; }
         img { width: 100%; height: 150px; object-fit: cover; border-radius: 4px; }
         .details { margin-top: 10px; font-size: 0.85em; }
-        a { color: #007bff; word-break: break-all; }
     </style>
 </head>
 <body>
 
     <h1>Image Repository</h1>
+    <div id="status">Loading...</div>
     <div id="gallery" class="gallery-container"></div>
 
     <script>
         const username = 'buildawesomesites-creator';
         const repo = 'gallery';
-        const folderPath = 'Image'; 
+        const folderPath = 'images'; // Changed from 'Image' to 'images'
 
         async function fetchRepoImages() {
+            const status = document.getElementById('status');
             const url = `https://api.github.com/repos/${username}/${repo}/contents/${folderPath}`;
             
             try {
                 const response = await fetch(url);
+                if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
                 const files = await response.json();
+                
+                status.style.display = 'none';
                 const gallery = document.getElementById('gallery');
 
                 files.forEach(file => {
@@ -45,7 +49,7 @@
                     }
                 });
             } catch (error) {
-                console.error('Error:', error);
+                status.innerHTML = 'Error: ' + error.message + '<br>Check if folder name is exactly "images"';
             }
         }
 
