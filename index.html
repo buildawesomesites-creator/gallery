@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Image Gallery</title>
+    <style>
+        body { font-family: sans-serif; padding: 20px; background: #f4f4f4; }
+        .gallery-container { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 20px; }
+        .item { background: white; padding: 10px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); text-align: center; }
+        img { width: 100%; height: 150px; object-fit: cover; border-radius: 4px; }
+        .details { margin-top: 10px; font-size: 0.85em; }
+        a { color: #007bff; word-break: break-all; }
+    </style>
+</head>
+<body>
+
+    <h1>Image Repository</h1>
+    <div id="gallery" class="gallery-container"></div>
+
+    <script>
+        const username = 'buildawesomesites-creator';
+        const repo = 'gallery';
+        const folderPath = 'Image'; 
+
+        async function fetchRepoImages() {
+            const url = `https://api.github.com/repos/${username}/${repo}/contents/${folderPath}`;
+            
+            try {
+                const response = await fetch(url);
+                const files = await response.json();
+                const gallery = document.getElementById('gallery');
+
+                files.forEach(file => {
+                    if (file.type === 'file' && file.name.match(/\.(jpeg|jpg|png|gif|webp)$/i)) {
+                        const item = document.createElement('div');
+                        item.className = 'item';
+                        item.innerHTML = `
+                            <img src="${file.download_url}" alt="${file.name}">
+                            <div class="details">
+                                <p><strong>${file.name}</strong></p>
+                                <a href="${file.download_url}" target="_blank">Hotlink</a>
+                            </div>
+                        `;
+                        gallery.appendChild(item);
+                    }
+                });
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        }
+
+        fetchRepoImages();
+    </script>
+</body>
+</html>
